@@ -1,0 +1,33 @@
+{
+    "env": {
+      "node": true,
+      "commonjs": true,
+      "es2021": true,
+      "jest": true
+    },
+    "extends": "airbnb-base",
+    "parserOptions": {
+      "ecmaVersion": 12
+    },
+    "rules": {
+        "no-undef": "error",
+        "no-unused-vars": "error",
+        "no-console": "error",
+        "no-constant-condition": "error",
+        "no-irregular-whitespace": "error",
+        "no-prototype-builtins": "error",
+        "no-unsafe-negation": "error",
+        "no-unsafe-optional-chaining": "error",
+        "no-useless-backreference": "error",
+        "no-useless-catch": "error",
+        "no-useless-constructor": "error",
+        "no-useless-escape": "error",
+        "no-useless-return": "error",
+        "no-useless-computed-key": "error",
+        "no-useless-concat": "error",
+        "no-useless-rename": "error",
+        "no-useless-undefined": "error",
+        "no-useless-call": "error"
+    }
+  }
+  
