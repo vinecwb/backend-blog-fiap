@@ -11,11 +11,22 @@ app.get('/users', async (req, res) => {
   res.json(users);
 });
 
-app.get('/feed', async (req, res) => {
+app.get('/posts', async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
       where: { published: true },
       include: { author: true },
+    });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+app.get('/posts/admin', async (req, res) => {
+  try {
+    const posts = await prisma.post.findMany({
+      include: { author: true }, // Inclui informações do autor, se necessário
     });
     res.json(posts);
   } catch (error) {
@@ -30,6 +41,28 @@ app.get('/post/:id', async (req, res) => {
   });
   res.json(post);
 });
+
+app.get('/posts/search', async (req, res) => {
+  const { query } = req.query;
+  if (!query) {
+    return res.status(400).json({ error: 'Query string is required' });
+  }
+
+  try {
+    const posts = await prisma.post.findMany({
+      where: {
+        OR: [
+          { title: { contains: query, mode: 'insensitive' } },
+          { content: { contains: query, mode: 'insensitive' } },
+        ],
+      },
+    });
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 
 app.post('/user', async (req, res) => {
   const result = await prisma.user.create({

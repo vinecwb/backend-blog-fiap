@@ -3,7 +3,7 @@ import request from 'supertest';
 import express from 'express';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
-import { app } from '../src/index'; // Importe o app do seu arquivo index.js
+import { app } from '../src/index'; 
 
 dotenv.config({ path: '.env.test' });
 
