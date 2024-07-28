@@ -1,8 +1,9 @@
 // jest.setup.js
 
 const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
 require('dotenv').config({ path: '.env.test' });
+
+const prisma = new PrismaClient();
 
 global.prisma = prisma;
 
@@ -15,7 +16,7 @@ afterAll(async () => {
 });
 
 beforeEach(async () => {
-  // Limpar as tabelas antes de cada teste
-  await prisma.user.deleteMany();
+  // Limpar as tabelas na ordem correta
   await prisma.post.deleteMany();
+  await prisma.user.deleteMany();
 });

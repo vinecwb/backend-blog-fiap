@@ -1,32 +1,99 @@
 import { PrismaClient } from '@prisma/client';
+import express from 'express';
 
 const prisma = new PrismaClient();
+const app = express();
 
-async function main() {
+app.use(express.json());
+
+app.get('/users', async (req, res) => {
+  const users = await prisma.user.findMany();
+  res.json(users);
+});
+
+app.get('/feed', async (req, res) => {
   try {
-    const newUser = await prisma.user.create({
-      data: {
-        name: 'Alice',
-        email: 'alice@prisma.io',
-        posts: {
-          create: {
-            title: 'Hello World',
-          },
-        },
-      },
+    const posts = await prisma.post.findMany({
+      where: { published: true },
+      include: { author: true },
     });
-    console.log('Created new user: ', newUser);
-
-    const allUsers = await prisma.user.findMany({
-      include: { posts: true },
-    });
-    console.log('All users: ');
-    console.dir(allUsers, { depth: null });
-  } catch (e) {
-    console.error(e);
-  } finally {
-    await prisma.$disconnect();
+    res.json(posts);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-}
+});
 
-main();
+app.get('/post/:id', async (req, res) => {
+  const { id } = req.params;
+  const post = await prisma.post.findUnique({
+    where: { id: Number(id) },
+  });
+  res.json(post);
+});
+
+app.post('/user', async (req, res) => {
+  const result = await prisma.user.create({
+    data: { ...req.body },
+  });
+  res.json(result);
+});
+
+app.post('/post', async (req, res) => {
+  const { title, content, authorEmail } = req.body;
+  const result = await prisma.post.create({
+    data: {
+      title,
+      content,
+      published: false,
+      author: { connect: { email: authorEmail } },
+    },
+  });
+  res.json(result);
+});
+
+app.put('/post/publish/:id', async (req, res) => {
+  const { id } = req.params;
+  const post = await prisma.post.update({
+    where: { id: Number(id) },
+    data: { published: true },
+  });
+  res.json(post);
+});
+
+app.put('/post/:id', async (req, res) => {
+  const { id } = req.params;
+  const { title, content, published } = req.body;
+  try {
+    const post = await prisma.post.update({
+      where: { id: Number(id) },
+      data: { title, content, published },
+    });
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while updating the post' });
+  }
+});
+
+app.delete('/post/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: Number(id) },
+    });
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    const deletedPost = await prisma.post.delete({
+      where: { id: Number(id) },
+    });
+    res.json(deletedPost);
+  } catch (error) {
+    res.status(500).json({ error: 'An error occurred while deleting the post' });
+  }
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
