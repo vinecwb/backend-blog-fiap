@@ -4,7 +4,7 @@ Bem-vindo ao repositório do projeto **Backend Blog FIAP**. Este é um backend p
 
 ## Documentação Técnica Detalhada
 
-Este projeto é uma API RESTful que gerencia posts e usuários de um blog. Ele utiliza PostgreSQL como banco de dados principal e SQLite para testes. A API oferece endpoints para criação, leitura, atualização e exclusão de posts e usuários, além de autenticação e autorização usando JWT.
+Este projeto é uma API RESTful que gerencia posts e usuários de um blog. Ele utiliza PostgreSQL como banco de dados principal e testes. A API oferece endpoints para criação, leitura, atualização e exclusão de posts e usuários, além de autenticação e autorização usando JWT.
 
 ### Tecnologias Utilizadas
 
@@ -12,7 +12,6 @@ Este projeto é uma API RESTful que gerencia posts e usuários de um blog. Ele u
 - **Express**: Framework para construção de APIs.
 - **Prisma**: ORM para gerenciamento de banco de dados.
 - **PostgreSQL**: Banco de dados principal.
-- **SQLite**: Banco de dados para testes.
 - **JWT (JSON Web Token)**: Para autenticação e autorização.
 - **Jest e Supertest**: Para testes automatizados da API.
 
