@@ -1,4 +1,3 @@
-// tests/user.test.js
 import request from 'supertest';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
@@ -15,17 +14,19 @@ const prisma = new PrismaClient({
 });
 
 let post;
+let token;
 
 beforeEach(async () => {
   // Limpar as tabelas
   await prisma.post.deleteMany();
   await prisma.user.deleteMany();
-  
+
   // Inserir um usuário de teste
   await prisma.user.create({
     data: {
       email: 'test@example.com',
       name: 'Test User',
+      password: 'yourpassword', // Adicione a senha aqui para o teste de login
     },
   });
 
@@ -38,6 +39,15 @@ beforeEach(async () => {
       author: { connect: { email: 'test@example.com' } },
     },
   });
+
+  // Obter o token JWT
+  const loginResponse = await request(app)
+    .post('/auth/login')
+    .send({
+      email: 'test@example.com',
+      password: 'yourpassword',
+    });
+  token = loginResponse.body.token;
 });
 
 afterAll(async () => {
@@ -53,33 +63,12 @@ describe('API Endpoints', () => {
         id: expect.any(Number),
         email: 'test@example.com',
         name: 'Test User',
+        password: expect.any(String),
         createdAt: expect.any(String),
         updatedAt: expect.any(String),
       },
     ]);
   });
-
-  // test('GET /posts should return a list of published posts with authors', async () => {
-  //   const response = await request(app).get('/posts');
-  //   expect(response.status).toBe(200);
-  //   expect(response.body).toEqual(expect.arrayContaining([{
-  //     id: expect.any(Number),
-  //     title: 'Test Post',
-  //     content: 'Test content',
-  //     published: true,
-  //     createdAt: expect.any(String),
-  //     updatedAt: expect.any(String),
-  //     author: {
-  //       id: expect.any(Number),
-  //       email: 'test@example.com',
-  //       name: 'Test User',
-  //       createdAt: expect.any(String),
-  //       updatedAt: expect.any(String),
-  //     },
-  //   }]));
-  // });
-  
-
 
   test('GET /post/:id should return a post by id', async () => {
     const response = await request(app).get(`/post/${post.id}`);
@@ -92,26 +81,15 @@ describe('API Endpoints', () => {
       authorId: expect.any(Number),
     });
   });
-  
-
-  test('POST /user should create a new user', async () => {
-    const response = await request(app).post('/user').send({
-      email: 'newuser@example.com',
-      name: 'New User',
-    });
-    expect(response.status).toBe(200);
-    expect(response.body).toMatchObject({
-      email: 'newuser@example.com',
-      name: 'New User',
-    });
-  });
 
   test('POST /post should create a new post', async () => {
-    const response = await request(app).post('/post').send({
-      title: 'New Post',
-      content: 'New content',
-      authorEmail: 'test@example.com',
-    });
+    const response = await request(app)
+      .post('/post')
+      .send({
+        title: 'New Post',
+        content: 'New content',
+        authorEmail: 'test@example.com',
+      });
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
       title: 'New Post',
@@ -119,8 +97,6 @@ describe('API Endpoints', () => {
       published: false,
       authorId: expect.any(Number),
     });
-  });
-  
   });
 
   test('PUT /post/publish/:id should publish a post', async () => {
@@ -130,11 +106,13 @@ describe('API Endpoints', () => {
   });
 
   test('PUT /post/:id should update a post', async () => {
-    const response = await request(app).put(`/post/${post.id}`).send({
-      title: 'Updated Title',
-      content: 'Updated content',
-      published: true,
-    });
+    const response = await request(app)
+      .put(`/post/${post.id}`)
+      .send({
+        title: 'Updated Title',
+        content: 'Updated content',
+        published: true,
+      });
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
       title: 'Updated Title',
@@ -152,3 +130,4 @@ describe('API Endpoints', () => {
       content: post.content,
     });
   });
+});

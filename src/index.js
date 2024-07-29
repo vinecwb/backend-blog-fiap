@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 import express from 'express';
+import authRoutes from './routes/auth.js';
 
 const prisma = new PrismaClient();
 const app = express();
 
 app.use(express.json());
+app.use('/auth', authRoutes);
 
 app.get('/users', async (req, res) => {
   const users = await prisma.user.findMany();
@@ -63,13 +65,6 @@ app.get('/posts/search', async (req, res) => {
   }
 });
 
-app.post('/user', async (req, res) => {
-  const result = await prisma.user.create({
-    data: { ...req.body },
-  });
-  res.json(result);
-});
-
 app.post('/post', async (req, res) => {
   const { title, content, authorEmail } = req.body;
   const result = await prisma.post.create({
@@ -125,11 +120,12 @@ app.delete('/post/:id', async (req, res) => {
   }
 });
 
-if (require.main === module) {
-  const port = process.env.PORT || 3000;
-  app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+if (process.env.NODE_ENV !== 'test') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
   });
 }
- 
+
+
 export { app };
