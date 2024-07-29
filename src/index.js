@@ -26,7 +26,7 @@ app.get('/posts', async (req, res) => {
 app.get('/posts/admin', async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
-      include: { author: true }, // Inclui informações do autor, se necessário
+      include: { author: true },
     });
     res.json(posts);
   } catch (error) {
@@ -62,7 +62,6 @@ app.get('/posts/search', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 
 app.post('/user', async (req, res) => {
   const result = await prisma.user.create({
@@ -126,7 +125,11 @@ app.delete('/post/:id', async (req, res) => {
   }
 });
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
-});
+if (require.main === module) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+  });
+}
+
+export { app };
