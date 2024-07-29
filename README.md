@@ -61,16 +61,29 @@ npm test
 
 ### Estrutura de Pastas
 
+- **`prisma/`**: Contem o gerenciamento do banco de dados.
+  - **`migrations/`**: Armazena todas as migrações do banco de dados.
+  - **`schema.prisma`**: Descreve a estrutura dos dados e suas relações.
+  - **`schema.test.prisma`**: Estrutura de dados de produção em ambiente de teste.
 - **`src/`**: Contém o código fonte da aplicação.
-  - **`routes/`**: Contém os arquivos de rotas para a API.
+    - **`routes/`**: Contém os arquivos de rotas para a API.
     - **`auth.js`**: Rotas relacionadas à autenticação.
-    - **`posts.js`**: Rotas relacionadas aos posts do blog.
-    - **`users.js`**: Rotas relacionadas aos usuários.
-  - **`controllers/`**: Contém a lógica de controle para cada rota.
-  - **`models/`**: Contém os modelos do Prisma para interagir com o banco de dados.
-  - **`middleware/`**: Contém middlewares, como autenticação JWT.
-  - **`config/`**: Contém arquivos de configuração, como configuração do banco de dados.
+  - **`auth.js`**: Configuração de hash para o password.
   - **`index.js`**: Arquivo principal para iniciar o servidor Express.
+- **`tests/`**: Contém o arquivo que irá fazer os testes automatizados pelo jest.
+  - **`user.test.js`**: Arquivo para automação dos testes.
+- **`.babelrc`**: Arquivo de configuração para transpilar código.
+- **`.env.test`**: Arquivo para salvar variáveis de ambiente de teste.
+- **`.eslintrc.json`**: Arquivo de configuração do ESLint.
+- **`docker-compose.yml`**: Define e configura múltiplos containers Docker para a aplicação.
+- **`Dockerfile`**: Script para criar uma imagem Docker com a configuração e dependências da aplicação.
+- **`jest.config.cjs`**: Configura o comportamento do Jest para testes JavaScript.
+- **`jest.setup.js`**: Configura e inicializa o ambiente de testes antes da execução dos testes.
+- **`package-lock.json`**: Registra as versões exatas das dependências instaladas para garantir consistência.
+- **`package.json`**: Manifesto do projeto Node.js que define dependências, scripts e informações do projeto.
+- **`test-env`**: Define variáveis de ambiente específicas para o ambiente de testes.
+- **`README.md`**: Documento que fornece uma visão geral, instruções e informações importantes sobre o projeto.
+
 
 ### Fluxo de Dados
 
@@ -128,8 +141,130 @@ Obtém uma lista de todos os usuários.
 
 ### Rotas de Post
 
+#### `GET/posts`
+Consultar posts (lista)
+
+**Request:**
+```http
+GET /posts
+Content-Type: application/json
+```
+
+**RESPONSE**
+```json
+[
+    {
+        "id": 1,
+        "title": "I am Bob",
+        "content": null,
+        "published": true,
+        "authorId": 1,
+        "createdAt": "2024-07-28T21:51:33.629Z",
+        "updatedAt": "2024-07-28T21:51:51.714Z",
+        "author": {
+            "id": 1,
+            "email": "bob@prisma.io",
+            "name": "Bob",
+            "createdAt": "2024-07-28T21:51:27.728Z",
+            "updatedAt": "2024-07-28T21:51:27.728Z"
+        }
+    }
+]
+```
+#### `GET/posts/id`
+Consulta um post por um id específico
+
+**Request** 
+```http
+GET /posts/:id
+Content-Type: application/json
+```
+
+**Response**
+```json
+{
+    "id": 4,
+    "title": "I am Bob",
+    "content": null,
+    "published": false,
+    "authorId": 13,
+    "createdAt": "2024-07-28T20:27:25.797Z",
+    "updatedAt": "2024-07-28T20:27:25.797Z"
+}
+```
+#### `GET/posts/admin`
+Visualizar todos os posts, aprovados/não aprovados
+
+**Request** 
+```http
+GET /posts/admin
+Content-Type: application/json
+```
+
+**Response**
+```json
+[
+    {
+        "id": 1,
+        "title": "I am Bob",
+        "content": null,
+        "published": true,
+        "authorId": 1,
+        "createdAt": "2024-07-28T21:51:33.629Z",
+        "updatedAt": "2024-07-28T21:51:51.714Z",
+        "author": {
+            "id": 1,
+            "email": "bob@prisma.io",
+            "name": "Bob",
+            "createdAt": "2024-07-28T21:51:27.728Z",
+            "updatedAt": "2024-07-28T21:51:27.728Z"
+        }
+    },
+    {
+        "id": 2,
+        "title": "Tec Bob",
+        "content": "Tecnologia",
+        "published": false,
+        "authorId": 1,
+        "createdAt": "2024-07-28T22:03:01.742Z",
+        "updatedAt": "2024-07-28T22:03:01.742Z",
+        "author": {
+            "id": 1,
+            "email": "bob@prisma.io",
+            "name": "Bob",
+            "createdAt": "2024-07-28T21:51:27.728Z",
+            "updatedAt": "2024-07-28T21:51:27.728Z"
+        }
+    }
+]
+```
+
+#### `GET /posts/search`
+Busca um post por uma palavra chave
+
+**Request** 
+```http
+GET /posts/search?query=tecnologia
+Content-Type: application/json
+```
+**Response**
+```json
+[
+    {
+        "id": 2,
+        "title": "Tec Bob",
+        "content": "Tecnologia",
+        "published": false,
+        "authorId": 1,
+        "createdAt": "2024-07-28T22:03:01.742Z",
+        "updatedAt": "2024-07-28T22:03:01.742Z"
+    }
+]
+```
+
+
 #### `POST /post`
-Cria um novo post.
+Criação de postagem.
 
 **Request:**
 
@@ -180,4 +315,55 @@ Authorization: Bearer your_jwt_token
   "createdAt": "2024-07-28T12:00:00.000Z",
   "updatedAt": "2024-07-28T12:00:00.000Z"
 }
+```
+
+#### `PUT /post/:id`
+Editar um post.
+
+**Request:**
+
+```http
+PUT /post/:id
+Content-Type: application/json
+data: 
+{
+  "title": "Updated Post Title",
+  "content": "This is the updated content of the post.",
+  "published": true
+}
+```
+**Response:**
+```json
+{
+  "id": 2,
+  "title": "Updated Post Title",
+  "content": "This is the updated content of the post.",
+  "published": true,
+  "authorId": 7,
+  "createdAt": "20204-07-28T19:46:16.841Z",
+  "updatedAt": "20204-07-28T19:58:56.841Z"
+}
+```
+#### `DEL/post/:id`
+Deleta um post específico
+
+**Request:**
+
+```http
+PUT /post/1/publish
+Content-Type: application/json
+Authorization: Bearer your_jwt_token
+```
+**Response:**
+```json
+{
+  "id": 1,
+  "title": "Deleted Post",
+  "content": "This post has been deleted.",
+  "published": false,
+  "authorId": 1,
+  "createdAt": "2024-07-28T12:00:00.000Z",
+  "updatedAt": "2024-07-28T12:00:00.000Z"
+}
+
 ```
