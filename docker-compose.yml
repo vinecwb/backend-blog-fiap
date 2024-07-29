@@ -11,5 +11,19 @@ services:
       - postgres:/var/lib/postgresql/data
     ports:
       - '5436:5432'
+
+  postgres_test:
+    image: postgres:10.3
+    restart: always
+    environment:
+      - POSTGRES_USER=${POSTGRES_TEST_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_TEST_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_TEST_DB}
+    volumes:
+      - postgres_test:/var/lib/postgresql/data
+    ports:
+      - '5437:5432'
+
 volumes:
   postgres:
+  postgres_test:
