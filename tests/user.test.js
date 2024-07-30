@@ -111,13 +111,13 @@ describe('API Endpoints', () => {
       .send({
         title: 'Updated Title',
         content: 'Updated content',
-        published: true,
+        published: false,
       });
     expect(response.status).toBe(200);
     expect(response.body).toMatchObject({
       title: 'Updated Title',
       content: 'Updated content',
-      published: true,
+      published: false,
     });
   });
 
