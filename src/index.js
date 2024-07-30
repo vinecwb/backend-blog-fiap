@@ -93,7 +93,7 @@ app.put('/post/:id', async (req, res) => {
   try {
     const post = await prisma.post.update({
       where: { id: Number(id) },
-      data: { title, content, published },
+      data: { title, content, published: false },
     });
     res.json(post);
   } catch (error) {
