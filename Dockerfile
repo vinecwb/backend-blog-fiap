@@ -25,6 +25,9 @@ COPY --from=build /app/node_modules /app/node_modules
 # Copiar o código-fonte da etapa de build
 COPY --from=build /app /app
 
+RUN npx prisma generate
+COPY . .
+
 # Expõe a porta que o app vai usar
 EXPOSE 3000
 

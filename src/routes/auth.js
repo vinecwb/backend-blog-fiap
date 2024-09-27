@@ -8,22 +8,25 @@ const router = express.Router();
 
 // Register a new user
 router.post('/register', async (req, res) => {
-  const { email, password, name } = req.body;
-  
-  if (!email || !password || !name) {
-    return res.status(400).json({ error: 'Email, password, and name are required' });
+  console.log('Recebendo requisição de registro:', req.body);
+  const { email, password, name, role } = req.body; // Incluindo o campo role
+
+  // Verificando se todos os campos necessários estão presentes
+  if (!email || !password || !name || !role) { // Adicione role aqui
+    return res.status(400).json({ error: 'Email, password, name, and role are required' });
   }
 
   try {
-    // Hash the password
+    // Hash a senha
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create a new user in the database
+    // Criar um novo usuário no banco de dados
     const user = await prisma.user.create({
       data: {
         email,
         password: hashedPassword,
-        name
+        name,
+        role // Incluindo o campo role ao criar o usuário
       }
     });
 
